@@ -1,14 +1,7 @@
-package com.example.test;
+package com.example.plugin.dex;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-
-import com.example.plugin.callActivity.ActivityHook;
-import com.example.plugin.callActivity.DlMainActivity;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -17,41 +10,10 @@ import java.lang.reflect.Method;
 import dalvik.system.DexClassLoader;
 import dalvik.system.PathClassLoader;
 
-public class MainActivity extends Activity {
-
-    private static final String TAG = "MainActivity";
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        findViewById(R.id.main_test).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    ActivityHook.getInstance().firstHook();
-                    ActivityHook.getInstance().secondHook();
-                    startActivity(new Intent(MainActivity.this, DlMainActivity.class));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    //Unable to find explicit activity class {com.zcl.currentapp/com.example.dl.DlMainActivity}; have you declared this activity in your AndroidManifest.xml?
-                }
-            }
-        });
-    }
+public class CallAndMergeSingleDexFile {
 
 
-    private void load() {
-        //调用测试
-        loadClass(MainActivity.this);
-        try {
-            Class<?> clazz = Class.forName("com.example.plugin.Test");
-            Method method = clazz.getMethod("print");
-            method.invoke(null);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
+    private static final String TAG = "CallAndMerge";
 
     private void loadFromDisk() {
 //      InMemoryDexClassLoader pathClassLoader = new InMemoryDexClassLoader("/sdcard/zcl/output.dex", null);
@@ -66,8 +28,20 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void load(Context currentContext) {
+        //调用测试
+        loadClass(currentContext,"/data/data/com.example.test/output.dex");
+        try {
+            Class<?> clazz = Class.forName("com.example.plugin.Test");
+            Method method = clazz.getMethod("print");
+            method.invoke(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-    public static void loadClass(Context context){
+
+    public static void loadClass(Context context,String dexPath){
 
         //合并dexElements
 
@@ -89,9 +63,8 @@ public class MainActivity extends Activity {
             //宿主的dexElements
             Object[] hostDexElements = (Object[]) dexElementsField.get(hostPathList);
 
-            String apkPath = "/data/data/com.example.test/output.dex";
             //插件的类加载器
-            ClassLoader dexClassLoader = new DexClassLoader(apkPath
+            ClassLoader dexClassLoader = new DexClassLoader(dexPath
                     ,context.getCacheDir().getAbsolutePath()
                     ,null
                     ,pathClassLoader);
@@ -121,8 +94,4 @@ public class MainActivity extends Activity {
         }
 
     }
-
-
-
-
 }
