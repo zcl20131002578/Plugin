@@ -7,9 +7,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import com.example.plugin.callActivity.ActivityHook;
-import com.example.plugin.callActivity.DlMainActivity;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -31,8 +28,11 @@ public class MainActivity extends Activity {
                 try {
                     ActivityHook.getInstance().firstHook();
                     ActivityHook.getInstance().secondHook();
-                    startActivity(new Intent(MainActivity.this, DlMainActivity.class));
+                    Intent intent = new Intent();
+                    intent.setClassName("com.example.test", DlMainActivity.class.getName());
+                    startActivity(intent);
                 } catch (Exception e) {
+                    Log.e("ZCLZCL", "onClick: exception: " + e);
                     e.printStackTrace();
                     //Unable to find explicit activity class {com.zcl.currentapp/com.example.dl.DlMainActivity}; have you declared this activity in your AndroidManifest.xml?
                 }
@@ -45,7 +45,7 @@ public class MainActivity extends Activity {
         //调用测试
         loadClass(MainActivity.this);
         try {
-            Class<?> clazz = Class.forName("com.example.plugin.Test");
+            Class<?> clazz = Class.forName("com.example.test.Test");
             Method method = clazz.getMethod("print");
             method.invoke(null);
         }catch (Exception e){
@@ -58,7 +58,7 @@ public class MainActivity extends Activity {
 //      DexClassLoader pathClassLoader = new DexClassLoader("/data/data/com.example.test/output.dex", null, null, null);
         PathClassLoader pathClassLoader = new PathClassLoader("/data/data/com.example.test/output.dex", null);
         try {
-            Class<?> testClass = pathClassLoader.loadClass("com.example.plugin.Test");
+            Class<?> testClass = pathClassLoader.loadClass("com.example.test.Test");
             Method method = testClass.getMethod("print");
             method.invoke(null);
         } catch (Exception e) {

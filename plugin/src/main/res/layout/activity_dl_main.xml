@@ -10,7 +10,7 @@
         android:layout_height="100dp"
         android:layout_gravity="center"
         android:background="@android:color/darker_gray"
-        android:text="dl_main_text"
+        android:text="hi,i am dl main activity"
         android:textSize="22sp" />
 
 </LinearLayout>

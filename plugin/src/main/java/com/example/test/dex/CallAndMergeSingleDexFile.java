@@ -1,4 +1,4 @@
-package com.example.plugin.dex;
+package com.example.test.dex;
 
 import android.content.Context;
 import android.util.Log;
@@ -20,7 +20,7 @@ public class CallAndMergeSingleDexFile {
 //      DexClassLoader pathClassLoader = new DexClassLoader("/data/data/com.example.test/output.dex", null, null, null);
         PathClassLoader pathClassLoader = new PathClassLoader("/data/data/com.example.test/output.dex", null);
         try {
-            Class<?> testClass = pathClassLoader.loadClass("com.example.plugin.Test");
+            Class<?> testClass = pathClassLoader.loadClass("com.example.test.Test");
             Method method = testClass.getMethod("print");
             method.invoke(null);
         } catch (Exception e) {
@@ -32,7 +32,7 @@ public class CallAndMergeSingleDexFile {
         //调用测试
         loadClass(currentContext,"/data/data/com.example.test/output.dex");
         try {
-            Class<?> clazz = Class.forName("com.example.plugin.Test");
+            Class<?> clazz = Class.forName("com.example.test.Test");
             Method method = clazz.getMethod("print");
             method.invoke(null);
         } catch (Exception e) {

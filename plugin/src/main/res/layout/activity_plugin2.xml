@@ -4,6 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PluginActivity">
+    android:gravity="center"
+    tools:context="com.example.test.PluginActivity">
+
+    <TextView
+        android:id="@+id/plugin_text"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:background="@android:color/black"
+        android:text="hi,i am plugin"
+        android:textColor="@android:color/white"
+        android:textSize="22sp" />
 
 </LinearLayout>

@@ -1,26 +1,30 @@
-package com.example.plugin.callActivity;
+package com.example.test;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
-import com.example.plugin.PluginActivity;
+import com.example.test.callActivity.Singleton;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.List;
 
 
 public class ActivityHook {
 
+    private static final int LAUNCH_ACTIVITY = 100;
+    private static final int EXECUTE_TRANSACTION = 159;
+
     public static ActivityHook getInstance() {
         return activityHook.get();
     }
 
-    private final static Singleton<ActivityHook> activityHook= new Singleton<ActivityHook>() {
+    private final static Singleton<ActivityHook> activityHook = new Singleton<ActivityHook>() {
         @Override
         protected ActivityHook create() {
             return new ActivityHook();
@@ -34,26 +38,22 @@ public class ActivityHook {
 
         //获取Singleton<T>对象
         Field singletonField = null;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) { //8.0
-            Class<?> clazz = Class.forName("android.app.ActivityManagerNative");
-            singletonField = clazz.getDeclaredField("gDefault");
-        } else {
-            Class<?> clazz = Class.forName("android.app.ActivityManager");
-            singletonField = clazz.getDeclaredField("IActivityManagerSingleton");
-        }
+
+        Class<?> clazz = Class.forName("android.app.ActivityTaskManager");
+        singletonField = clazz.getDeclaredField("IActivityTaskManagerSingleton");
+
         singletonField.setAccessible(true);
         /**
-         * private static final Singleton<IActivityManager> IActivityManagerSingleton =
-         *             new Singleton<IActivityManager>() {
+         * private static final Singleton<IActivityTaskManager> IActivityTaskManagerSingleton =
+         *             new Singleton<IActivityTaskManager>() {
          *                 @Override
-         *                 protected IActivityManager create() {
-         *                     final IBinder b = ServiceManager.getService(Context.ACTIVITY_SERVICE);
-         *                     final IActivityManager am = IActivityManager.Stub.asInterface(b);
-         *                     return am;
+         *                 protected IActivityTaskManager create() {
+         *                     final IBinder b = ServiceManager.getService(Context.ACTIVITY_TASK_SERVICE);
+         *                     return IActivityTaskManager.Stub.asInterface(b);
          *                 }
          *             };
          *
-         *  singleton 对象类型为Singleton<IActivityManager>
+         *  singleton 对象类型为Singleton<IActivityTaskManager>
          */
         Object singleton = singletonField.get(null); //静态的可以直接获取，传入null
 
@@ -79,15 +79,15 @@ public class ActivityHook {
         mInstanceField.setAccessible(true);
 
         /**
-         * singleton 对象类型为Singleton<IActivityManager>,从singleton里面获取mInstance属性对象，即IActivityManager对象
+         * singleton 对象类型为Singleton<IActivityManager>,从singleton里面获取mInstance属性对象，即IActivityTaskManager对象
          */
         final Object mInstance = mInstanceField.get(singleton);
 
         //创建动态代理对象
-        Class<?> iActivityManagerClass = Class.forName("android.app.IActivityManager");
+        Class<?> iActivityManagerTaskClass = Class.forName("android.app.IActivityTaskManager");
 
         Object proxyInstance = Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-                new Class[]{iActivityManagerClass}, new InvocationHandler() {
+                new Class[]{iActivityManagerTaskClass}, new InvocationHandler() {
                     @Override
                     public Object invoke(Object o, Method method, Object[] args) throws Throwable {
                         // do something
@@ -100,6 +100,7 @@ public class ActivityHook {
                          *                         requestCode, 0, null, options)
                          */
                         //过滤
+                        Log.e("ZCLZCL", "invoke: method.getName(): " + method.getName() + " args[] " + Arrays.toString(args));
                         if ("startActivity".equals(method.getName())) {
                             int index = -1;
                             //获取Intent参数在args数组中的index值
@@ -114,7 +115,7 @@ public class ActivityHook {
 
                             //生成代理proxyIntent
                             Intent proxyIntent = new Intent();
-                            proxyIntent.setClassName("com.example.plugin", PluginActivity.class.getName());
+                            proxyIntent.setClassName("com.example.test", PluginActivity.class.getName());
                             //保存原始的Intent对象
                             proxyIntent.putExtra(TARGET_INTENT, intent);
                             //使用proxyIntent替换数组中的Intent
@@ -144,7 +145,8 @@ public class ActivityHook {
                 // 找到 Intent的方便替换的地方  --- 在这个类里面 ActivityClientRecord --- Intent intent 非静态
                 // msg.obj == ActivityClientRecord
                 switch (msg.what) {
-                    case 100:
+                    //public static final int LAUNCH_ACTIVITY= 100;
+                    case LAUNCH_ACTIVITY:
                         try {
                             Field intentField = msg.obj.getClass().getDeclaredField("intent");
                             intentField.setAccessible(true);
@@ -159,7 +161,7 @@ public class ActivityHook {
                             e.printStackTrace();
                         }
                         break;
-                    case 159:
+                    case EXECUTE_TRANSACTION:
                         try {
                             // 获取 mActivityCallbacks 对象
                             Field mActivityCallbacksField = msg.obj.getClass()

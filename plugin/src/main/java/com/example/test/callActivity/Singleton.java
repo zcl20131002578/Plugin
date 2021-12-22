@@ -1,4 +1,4 @@
-package com.example.plugin.callActivity;
+package com.example.test.callActivity;
 
 public abstract class Singleton<T> {
 

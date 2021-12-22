@@ -1,4 +1,4 @@
-package com.example.plugin;
+package com.example.test;
 
 public class Test {
 
