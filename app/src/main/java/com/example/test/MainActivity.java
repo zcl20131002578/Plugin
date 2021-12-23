@@ -22,14 +22,40 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        try {
+            ActivityHook.getInstance().firstHook();
+            ActivityHook.getInstance().secondHook();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
         findViewById(R.id.main_test).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
-                    ActivityHook.getInstance().firstHook();
-                    ActivityHook.getInstance().secondHook();
+
                     Intent intent = new Intent();
                     intent.setClassName("com.example.test", DlMainActivity.class.getName());
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Log.e("ZCLZCL", "onClick: exception: " + e);
+                    e.printStackTrace();
+                    //Unable to find explicit activity class {com.zcl.currentapp/com.example.dl.DlMainActivity}; have you declared this activity in your AndroidManifest.xml?
+                }
+            }
+        });
+
+
+        findViewById(R.id.main_test1).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+
+                    Intent intent = new Intent();
+                    intent.setClassName("com.example.test", SecondActivity.class.getName());
                     startActivity(intent);
                 } catch (Exception e) {
                     Log.e("ZCLZCL", "onClick: exception: " + e);

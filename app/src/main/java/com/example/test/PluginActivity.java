@@ -9,6 +9,6 @@ public class PluginActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(com.example.test.R.layout.activity_plugin2);
+        setContentView(R.layout.activity_plugin2);
     }
 }

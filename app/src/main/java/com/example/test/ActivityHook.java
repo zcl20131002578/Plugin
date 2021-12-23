@@ -11,7 +11,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -100,7 +99,7 @@ public class ActivityHook {
                          *                         requestCode, 0, null, options)
                          */
                         //过滤
-                        Log.e("ZCLZCL", "invoke: method.getName(): " + method.getName() + " args[] " + Arrays.toString(args));
+//                        Log.e("ZCLZCL", "invoke: method.getName(): " + method.getName() + " args[] " + Arrays.toString(args));
                         if ("startActivity".equals(method.getName())) {
                             int index = -1;
                             //获取Intent参数在args数组中的index值
@@ -164,28 +163,28 @@ public class ActivityHook {
                     case EXECUTE_TRANSACTION:
                         try {
                             // 获取 mActivityCallbacks 对象
-                            Field mActivityCallbacksField = msg.obj.getClass()
-                                    .getDeclaredField("mActivityCallbacks");
+                            Field mActivityCallbacksField = msg.obj.getClass().getDeclaredField("mActivityCallbacks");
 
                             mActivityCallbacksField.setAccessible(true);
                             List mActivityCallbacks = (List) mActivityCallbacksField.get(msg.obj);
 
                             for (int i = 0; i < mActivityCallbacks.size(); i++) {
-                                if (mActivityCallbacks.get(i).getClass().getName()
-                                        .equals("android.app.servertransaction.LaunchActivityItem")) {
+                                Log.e("ZCLZCL", "handleMessage: mActivityCallbacks.get(i).getClass().getName(): " + mActivityCallbacks.get(i).getClass().getName());
+                                if (mActivityCallbacks.get(i).getClass().getName().equals("android.app.servertransaction.LaunchActivityItem")) {
                                     Object launchActivityItem = mActivityCallbacks.get(i);
 
                                     // 获取启动代理的 Intent
-                                    Field mIntentField = launchActivityItem.getClass()
-                                            .getDeclaredField("mIntent");
+                                    Field mIntentField = launchActivityItem.getClass().getDeclaredField("mIntent");
                                     mIntentField.setAccessible(true);
                                     Intent proxyIntent = (Intent) mIntentField.get(launchActivityItem);
-
+                                    Log.e("ZCLZCL", "handleMessage: proxyIntent: " + proxyIntent);
                                     // 目标 intent 替换 proxyIntent
                                     Intent intent = proxyIntent.getParcelableExtra(TARGET_INTENT);
+                                    Log.e("ZCLZCL", "handleMessage: intent: " + intent);
                                     if (intent != null) {
                                         mIntentField.set(launchActivityItem, intent);
                                     }
+                                    Log.e("ZCLZCL", "handleMessage: launchActivityItem: " + launchActivityItem);
                                 }
                             }
                         } catch (Exception e) {
