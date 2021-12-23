@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import com.example.test.callActivity.PluginNotRegister;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -22,23 +24,14 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        try {
-            ActivityHook.getInstance().firstHook();
-            ActivityHook.getInstance().secondHook();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        ActivityHook.getInstance().hook();
         findViewById(R.id.main_test).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
 
-                    Intent intent = new Intent();
-                    intent.setClassName("com.example.test", DlMainActivity.class.getName());
+                    Intent intent = new Intent(MainActivity.this.getApplicationContext(), DlMainActivity.class);
+//                    intent.setClassName("com.example.test", DlMainActivity.class.getName());
                     startActivity(intent);
                 } catch (Exception e) {
                     Log.e("ZCLZCL", "onClick: exception: " + e);
@@ -54,8 +47,26 @@ public class MainActivity extends Activity {
             public void onClick(View view) {
                 try {
 
-                    Intent intent = new Intent();
-                    intent.setClassName("com.example.test", SecondActivity.class.getName());
+//                    Intent intent = new Intent();
+                    Intent intent = new Intent(MainActivity.this.getApplicationContext(), SecondActivity.class);
+//                    intent.setClassName("com.example.test", SecondActivity.class.getName());
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Log.e("ZCLZCL", "onClick: exception: " + e);
+                    e.printStackTrace();
+                    //Unable to find explicit activity class {com.zcl.currentapp/com.example.dl.DlMainActivity}; have you declared this activity in your AndroidManifest.xml?
+                }
+            }
+        });
+
+
+        findViewById(R.id.main_test2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+//                    Intent intent = new Intent();
+                    Intent intent = new Intent(MainActivity.this, PluginNotRegister.class);
+//                    intent.setClassName("com.example.test.callActivity", PluginNotRegister.class.getName());
                     startActivity(intent);
                 } catch (Exception e) {
                     Log.e("ZCLZCL", "onClick: exception: " + e);
@@ -74,7 +85,7 @@ public class MainActivity extends Activity {
             Class<?> clazz = Class.forName("com.example.test.Test");
             Method method = clazz.getMethod("print");
             method.invoke(null);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -93,11 +104,11 @@ public class MainActivity extends Activity {
     }
 
 
-    public static void loadClass(Context context){
+    public static void loadClass(Context context) {
 
         //合并dexElements
 
-        try{
+        try {
             //获取BaseDexClassLoader中的pathList（DexPathList）
             Class<?> clazz = Class.forName("dalvik.system.BaseDexClassLoader");
             Field pathListField = clazz.getDeclaredField("pathList"); //private final DexPathList pathList;
@@ -118,9 +129,9 @@ public class MainActivity extends Activity {
             String apkPath = "/data/data/com.example.test/output.dex";
             //插件的类加载器
             ClassLoader dexClassLoader = new DexClassLoader(apkPath
-                    ,context.getCacheDir().getAbsolutePath()
-                    ,null
-                    ,pathClassLoader);
+                    , context.getCacheDir().getAbsolutePath()
+                    , null
+                    , pathClassLoader);
 
             //DexPathList类的对象
             Object pluginPathList = pathListField.get(dexClassLoader);
@@ -129,12 +140,12 @@ public class MainActivity extends Activity {
 
             //创建一个新数组
             Object[] newDexElements = (Object[]) Array.newInstance(hostDexElements.getClass().getComponentType()
-                    ,hostDexElements.length + pluginElements.length);
-            System.arraycopy(hostDexElements,0,newDexElements,0,hostDexElements.length);
-            System.arraycopy(pluginElements,0,newDexElements,hostDexElements.length,pluginElements.length);
+                    , hostDexElements.length + pluginElements.length);
+            System.arraycopy(hostDexElements, 0, newDexElements, 0, hostDexElements.length);
+            System.arraycopy(pluginElements, 0, newDexElements, hostDexElements.length, pluginElements.length);
 
             //赋值
-            dexElementsField.set(hostPathList,newDexElements);
+            dexElementsField.set(hostPathList, newDexElements);
             /**
              * 获取宿主的dexElements
              * 获取插件dex的dexElements
@@ -142,13 +153,11 @@ public class MainActivity extends Activity {
              * 用这个新的array的值替换宿主的classLoader的dexElements原来的值
              */
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
-
-
 
 
 }

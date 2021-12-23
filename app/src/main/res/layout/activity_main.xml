@@ -23,4 +23,13 @@
         android:text="click me,second"
         android:background="@android:color/darker_gray"/>
 
+
+    <TextView
+        android:id="@+id/main_test2"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="50dp"
+        android:text="click me,plugin not register"
+        android:background="@android:color/darker_gray"/>
+
 </LinearLayout>

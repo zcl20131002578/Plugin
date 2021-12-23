@@ -33,7 +33,18 @@ public class ActivityHook {
     private static final String TARGET_INTENT = "TARGET_INTENT";
 
 
-    public void firstHook() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    public void hook() {
+        try {
+            ActivityHook.getInstance().firstHook();
+            ActivityHook.getInstance().secondHook();
+        } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    private void firstHook() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
 
         //获取Singleton<T>对象
         Field singletonField = null;
@@ -133,7 +144,8 @@ public class ActivityHook {
 
     }
 
-    public void secondHook() throws IllegalAccessException, NoSuchFieldException, ClassNotFoundException {
+
+    private void secondHook() throws IllegalAccessException, NoSuchFieldException, ClassNotFoundException {
         // 创建的 callback
         Handler.Callback callback = new Handler.Callback() {
 
