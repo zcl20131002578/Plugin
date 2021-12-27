@@ -3,6 +3,9 @@ package com.example.test;
 import android.app.Activity;
 import android.os.Bundle;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 public class DlMainActivity extends Activity {
 
 
@@ -10,6 +13,14 @@ public class DlMainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dl_main);
+        getString(R.string.app_name);
+
+
+        try {
+            InputStream is = getAssets().open("ic_launcher.png");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 //    private AssetManager mAssetManager;
