@@ -3,6 +3,8 @@ package com.example.test;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.test.callActivity.Singleton;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -12,11 +14,28 @@ import dalvik.system.PathClassLoader;
 
 public class DexHook {
 
-    private void load(Context context) {
+    private DexHook() {
+
+    }
+
+    public static DexHook getInstance() {
+        return dexInstance.get();
+    }
+
+    private final static Singleton<DexHook> dexInstance = new Singleton<DexHook>() {
+        @Override
+        protected DexHook create() {
+            return new DexHook();
+        }
+    };
+
+    public void load(Context context) {
+        String apkPath = LoadResourcesUtils.apkPath;
         //调用测试
-        loadClass(context);
+        loadClass(context, apkPath);
         try {
-            Class<?> clazz = Class.forName("com.example.test.Test");
+//            Class<?> clazz = Class.forName("com.miui.branch.BranchLogger");
+            Class<?> clazz = Class.forName("com.mi.android.globallauncher.CommercialLogger");
             Method method = clazz.getMethod("print");
             method.invoke(null);
         } catch (Exception e) {
@@ -25,8 +44,8 @@ public class DexHook {
     }
 
     private void loadFromDisk() {
-//      InMemoryDexClassLoader pathClassLoader = new InMemoryDexClassLoader("/sdcard/zcl/output.dex", null);
 //      DexClassLoader pathClassLoader = new DexClassLoader("/data/data/com.example.test/output.dex", null, null, null);
+        //only through the special class loader load the class
         PathClassLoader pathClassLoader = new PathClassLoader("/data/data/com.example.test/output.dex", null);
         try {
             Class<?> testClass = pathClassLoader.loadClass("com.example.test.Test");
@@ -38,7 +57,7 @@ public class DexHook {
     }
 
 
-    public static void loadClass(Context context) {
+    public static void loadClass(Context context, String apkOrDexPath) {
 
         //合并dexElements
 
@@ -60,9 +79,9 @@ public class DexHook {
             //宿主的dexElements
             Object[] hostDexElements = (Object[]) dexElementsField.get(hostPathList);
 
-            String apkPath = "/data/data/com.example.test/output.dex";
+//            String apkPath = "/data/data/com.example.test/output.dex";
             //插件的类加载器
-            ClassLoader dexClassLoader = new DexClassLoader(apkPath
+            ClassLoader dexClassLoader = new DexClassLoader(apkOrDexPath
                     , context.getCacheDir().getAbsolutePath()
                     , null
                     , pathClassLoader);

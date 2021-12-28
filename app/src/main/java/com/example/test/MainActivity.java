@@ -22,20 +22,7 @@ public class MainActivity extends Activity {
         findViewById(R.id.main_test).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                String appName = getResources().getString(R.string.app_name);
-                try {
-//                    InputStream is = getAssets().open("ic_launcher.png");
-                    Intent intent = new Intent();
-                    intent.setClassName(getApplicationContext(), ResourcePluginActivity.class.getName());
-                    startActivity(intent);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-//                String apkPath = "/data/data/com.example.test/app-debug.apk";
-//                ResourceHook.getInstance().resourceHook(apkPath);
-
+                DexHook.getInstance().load(MainActivity.this);
             }
         });
 
@@ -85,6 +72,18 @@ public class MainActivity extends Activity {
             Log.e("ZCLZCL", "onClick: exception: " + e);
             e.printStackTrace();
             //Unable to find explicit activity class {com.zcl.currentapp/com.example.dl.DlMainActivity}; have you declared this activity in your AndroidManifest.xml?
+        }
+    }
+
+
+    private void resHook() {
+        try {
+//          InputStream is = getAssets().open("ic_launcher.png");
+            Intent intent = new Intent();
+            intent.setClassName(getApplicationContext(), ResourcePluginActivity.class.getName());
+            startActivity(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

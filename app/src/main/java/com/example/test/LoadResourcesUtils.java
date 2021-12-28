@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
 public class LoadResourcesUtils {
 
 //    private final static String apkPath = "/sdcard/app-debug.apk";
-    private final static String apkPath = "/data/data/com.example.test/app-debug.apk";
+    public final static String apkPath = "/data/data/com.example.test/app-debug.apk";
 
     private static Resources mResources;
 
